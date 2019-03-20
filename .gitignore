@@ -1,3 +1,5 @@
 *.iml
 /target
-/target
+.idea
+.DS_store
+.vertx

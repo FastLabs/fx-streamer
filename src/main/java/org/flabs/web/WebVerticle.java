@@ -13,18 +13,20 @@ import org.flabs.repository.RatesRepository;
 
 public class WebVerticle extends AbstractVerticle {
 
+    private static final int DEFAULT_PORT = 8080;
 
     private Router getApiRouter() {
         final Router apiRouter = Router.router(vertx);
         apiRouter.route().handler(BodyHandler.create());
         apiRouter.route().consumes("application/json");
         apiRouter.route().produces("application/json");
-        apiRouter.route("/fxrates").handler( new FxRatesRestHandler(new RatesRepository()));
+        apiRouter.route("/fxrates").handler(new FxRatesRestHandler(new RatesRepository()));
         return apiRouter;
     }
 
     @Override
     public void start(Future<Void> startFuture) throws Exception {
+        final int httpPort = config().containsKey("http.port") ? config().getInteger("http.port") : DEFAULT_PORT;
         final Router router = Router.router(vertx);
         final SockJSHandlerOptions sjsOptions = new SockJSHandlerOptions().setHeartbeatInterval(2000);
         final SockJSHandler sockJSHandler = SockJSHandler.create(vertx, sjsOptions);
@@ -45,7 +47,7 @@ public class WebVerticle extends AbstractVerticle {
 
         vertx.createHttpServer()
                 .requestHandler(router)
-                .listen(8080, result -> {
+                .listen(httpPort, result -> {
                     if (result.succeeded()) {
                         startFuture.complete();
                     } else {

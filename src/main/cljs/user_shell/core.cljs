@@ -28,7 +28,7 @@
   [err message] (if err
                   (prn (str "received " err))
                   (let [body (.-body message)]
-                       (rf/dispatch [:new-event (js->clj body :keywordize-keys true )]))))
+                       (rf/dispatch [:new-event (js->clj body :keywordize-keys true)]))))
 
 (ebus/register "http://localhost:8080/tick"
   (fn [eb]

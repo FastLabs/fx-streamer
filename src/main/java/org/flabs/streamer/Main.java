@@ -16,7 +16,7 @@ public class Main {
     }
 
     public static void main(String... args) {
-        final Main main = new Main(args != null && args.length > 0 ? Integer.parseInt(args[0]): 8080);
+        final Main main = new Main(args != null && args.length > 0 ? Integer.parseInt(args[0]) : 8080);
         Vertx.clusteredVertx(new VertxOptions(), main::onStart);
 
     }
@@ -24,7 +24,8 @@ public class Main {
     void onStart(AsyncResult<Vertx> res) {
         if (res.succeeded()) {
             final Vertx vertx = res.result();
-            vertx.deployVerticle(new WebVerticle(), new DeploymentOptions(), r -> {
+            vertx.deployVerticle(new WebVerticle(), new DeploymentOptions()
+                    .setConfig(new JsonObject().put("http.port", 8081)), r -> {
                 if (r.succeeded()) {
                     System.out.println("Web is up and running");
                 } else {
@@ -33,14 +34,14 @@ public class Main {
             });
 
             vertx.deployVerticle(new StreamingVerticle(), new DeploymentOptions()
-                    .setConfig(new JsonObject().put("http.port", 8080))
-                    .setHa(true), r -> {
-                if (r.succeeded()) {
-                    System.out.println("Message streamer deployed");
-                } else {
 
-                }
-            });
+                    , r -> {
+                        if (r.succeeded()) {
+                            System.out.println("Message streamer deployed");
+                        } else {
+
+                        }
+                    });
         } else {
             System.err.print("Unable to start in clustered mode");
         }

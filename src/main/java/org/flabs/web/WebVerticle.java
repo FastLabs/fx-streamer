@@ -37,7 +37,7 @@ public class WebVerticle extends AbstractVerticle {
 
         router.route("/*")
                 .handler(StaticHandler.create()
-                        .setWebRoot("webroot/fx-shell/resources/public/")
+                        .setWebRoot("public")
                         .setCachingEnabled(false)
                         .setIndexPage("index.html"))
         ;

@@ -11,7 +11,7 @@
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]]
 
-  :source-paths ["src"]
+  :source-paths ["src/main/cljs"]
 
   :aliases {"fig"       ["trampoline" "run" "-m" "figwheel.main"]
             "fig:build" ["trampoline" "run" "-m" "figwheel.main" "-b" "dev" "-r"]

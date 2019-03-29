@@ -25,7 +25,7 @@ public class Main {
         if (res.succeeded()) {
             final Vertx vertx = res.result();
             vertx.deployVerticle(new WebVerticle(), new DeploymentOptions()
-                    .setConfig(new JsonObject().put("http.port", 8081)), r -> {
+                    .setConfig(new JsonObject().put("http.port", 8080)), r -> {
                 if (r.succeeded()) {
                     System.out.println("Web is up and running");
                 } else {

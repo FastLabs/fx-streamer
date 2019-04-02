@@ -1,21 +1,28 @@
 package org.flabs.web;
 
-import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
+import io.reactivex.Completable;
 import io.vertx.ext.bridge.PermittedOptions;
-import io.vertx.ext.web.Router;
-import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
-import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.handler.sockjs.SockJSHandlerOptions;
+import io.vertx.reactivex.core.AbstractVerticle;
+import io.vertx.reactivex.core.http.HttpServer;
+import io.vertx.reactivex.ext.web.Router;
+import io.vertx.reactivex.ext.web.handler.BodyHandler;
+import io.vertx.reactivex.ext.web.handler.StaticHandler;
+import io.vertx.reactivex.ext.web.handler.sockjs.SockJSHandler;
 import org.flabs.repository.RatesRepository;
 
 public class WebVerticle extends AbstractVerticle {
 
     private static final int DEFAULT_PORT = 8080;
+    private HttpServer server;
 
-    private Router getApiRouter() {
+    private void setServer(HttpServer server) {
+        System.out.println("-------------");
+        this.server = server;
+    }
+
+    private io.vertx.reactivex.ext.web.Router getApiRouter() {
         final Router apiRouter = Router.router(vertx);
         apiRouter.route().handler(BodyHandler.create());
         apiRouter.route().consumes("application/json");
@@ -24,8 +31,9 @@ public class WebVerticle extends AbstractVerticle {
         return apiRouter;
     }
 
+
     @Override
-    public void start(Future<Void> startFuture) throws Exception {
+    public Completable rxStart() {
         final int httpPort = config().containsKey("http.port") ? config().getInteger("http.port") : DEFAULT_PORT;
         final Router router = Router.router(vertx);
         final SockJSHandlerOptions sjsOptions = new SockJSHandlerOptions().setHeartbeatInterval(2000);
@@ -45,15 +53,15 @@ public class WebVerticle extends AbstractVerticle {
         router.route("/tick/*")
                 .handler(sockJSHandler);
 
-        vertx.createHttpServer()
+        return vertx.createHttpServer()
                 .requestHandler(router)
-                .listen(httpPort, result -> {
-                    if (result.succeeded()) {
-                        startFuture.complete();
-                    } else {
-                        startFuture.fail(result.cause());
-                    }
-                });
+                .rxListen(httpPort)
+                .doAfterSuccess(this::setServer)
+                .ignoreElement();
+    }
 
+    @Override
+    public Completable rxStop() {
+        return server.rxClose();
     }
 }

@@ -1,11 +1,13 @@
 package org.flabs.streamer;
 
-import io.vertx.core.AsyncResult;
+import io.reactivex.Observable;
 import io.vertx.core.DeploymentOptions;
-import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
 import io.vertx.core.json.JsonObject;
+import io.vertx.reactivex.core.Vertx;
 import org.flabs.web.WebVerticle;
+
+import java.util.concurrent.TimeUnit;
 
 public class Main {
 
@@ -15,35 +17,36 @@ public class Main {
         this.httpPort = httpPort;
     }
 
+    //TODO: understand more about rxjava2, example: disposable
+
     public static void main(String... args) {
         final Main main = new Main(args != null && args.length > 0 ? Integer.parseInt(args[0]) : 8080);
-        Vertx.clusteredVertx(new VertxOptions(), main::onStart);
-
+        main.start();
     }
 
-    void onStart(AsyncResult<Vertx> res) {
-        if (res.succeeded()) {
-            final Vertx vertx = res.result();
-            vertx.deployVerticle(new WebVerticle(), new DeploymentOptions()
-                    .setConfig(new JsonObject().put("http.port", 8080)), r -> {
-                if (r.succeeded()) {
-                    System.out.println("Web is up and running");
-                } else {
-                    System.out.println("Error when starting web server");
-                }
-            });
+    @SuppressWarnings("all")
+    private void start() {
+        Vertx.rxClusteredVertx(new VertxOptions()
+                .setMaxEventLoopExecuteTime(6)
+                .setMaxEventLoopExecuteTimeUnit(TimeUnit.SECONDS))
+                .subscribe(vertx -> {
+                    Observable.merge(vertx.rxDeployVerticle(new WebVerticle(),
+                            new DeploymentOptions()
 
-            vertx.deployVerticle(new StreamingVerticle(), new DeploymentOptions()
-
-                    , r -> {
-                        if (r.succeeded()) {
-                            System.out.println("Message streamer deployed");
-                        } else {
-
-                        }
-                    });
-        } else {
-            System.err.print("Unable to start in clustered mode");
-        }
+                                    .setConfig(new JsonObject()
+                                            .put("http.port", this.httpPort)))
+                                    .toObservable(),
+                            vertx.rxDeployVerticle("org.flabs.streamer.StreamingVerticle",
+                                    new DeploymentOptions().setHa(true))
+                                    .toObservable())
+                            .subscribe(verticleId -> {
+                                        System.out.println("Component " + verticleId + " deployed");
+                                    }, err -> {
+                                        System.err.println("Error when starting component: " + err);
+                                    },
+                                    () -> {
+                                        System.out.println("ALl components started");
+                                    });
+                }, System.err::println);
     }
 }

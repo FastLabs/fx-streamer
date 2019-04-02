@@ -1,9 +1,12 @@
 package org.flabs.web;
 
+
+
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
-import io.vertx.ext.web.RoutingContext;
+
+import io.vertx.reactivex.ext.web.RoutingContext;
 import org.flabs.repository.RatesRepository;
 
 import java.util.List;

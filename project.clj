@@ -1,4 +1,4 @@
-(defproject user-shell "0.1.0-SNAPSHOT"
+(defproject fx-streamer "0.1.0-SNAPSHOT"
   :description "FIXME: write this!"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -8,9 +8,10 @@
 
   :dependencies [[org.clojure/clojure "1.10.0"]
                  [org.clojure/clojurescript "1.10.516"]
-                 [io.vertx/vertx-core "3.6.3"]
-                 [io.vertx/vertx-hazelcast "3.6.3"]
-                 [io.vertx/vertx-web "3.6.3"]
+                 [io.vertx/vertx-core "3.7.0"]
+                 [io.vertx/vertx-hazelcast "3.7.0"]
+                 [io.vertx/vertx-web "3.7.0"]
+                 [io.vertx/vertx-rx-java2 "3.7.0"]
                  [reagent "0.8.1"]
                  [re-frame "0.10.6"]]
 

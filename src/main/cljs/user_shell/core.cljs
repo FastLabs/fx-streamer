@@ -3,12 +3,13 @@
     [goog.dom :as gdom]
     [event-bus.core :as ebus]
     [re-frame.core :as rf]
+    [user-shell.stream-subs :as sub-man]
     [reagent.core :as reagent :refer [atom]]))
 
 
-
 ;; define your app data so that it doesn't get over-written on reload
-(defonce app-state (atom {:text "Application Streamer"}))
+(defonce app-state (atom {:text "Application Streamer"
+                          :subs {}}))
 
 (rf/reg-event-db
   :initialise
@@ -23,6 +24,17 @@
   :event-count
   (fn [db] (:event-count db)))
 
+(rf/reg-sub
+  :all-subs
+  (fn [db] (vals(:subs db))))
+
+(rf/reg-event-db
+  :new-subscription
+  (fn [db [_ new-sub]]
+    (update-in db [:subs] assoc new-sub {:name new-sub})))
+
+
+
 
 (defn- message-handler
   [err message] (if err
@@ -30,11 +42,11 @@
                   (let [body (.-body message)]
                        (rf/dispatch [:new-event (js->clj body :keywordize-keys true)]))))
 
-(ebus/register "http://localhost:8080/tick"
-  (fn [eb]
-    (-> eb
-      (ebus/register-handler "tick-address" message-handler)
-      (ebus/register-handler "tick-address-1" message-handler))))
+'(ebus/register "http://localhost:8080/tick"
+   (fn [eb]
+     (-> eb
+       (ebus/register-handler "tick-address" message-handler)
+       (ebus/register-handler "tick-address-1" message-handler))))
 
 
 
@@ -43,12 +55,20 @@
 
 (defn hello-world []
     [:div
-     [:h3 (str "Received events: " @(rf/subscribe [:event-count]))]])
+     [:h4 (str "Received events: " @(rf/subscribe [:event-count]))]])
+
+(defn subscription-view
+  []
+  [:section.content
+   [:div.col-lg-8
+    [sub-man/subs-manager-view]]])
+
 
 
 
 (defn mount [el]
-  (reagent/render-component [hello-world] el))
+  (reagent/render-component
+    [subscription-view] el))
 
 (defn mount-app-element []
   (when-let [el (get-app-element)]

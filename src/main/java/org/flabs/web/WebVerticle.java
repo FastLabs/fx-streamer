@@ -10,7 +10,6 @@ import io.vertx.reactivex.ext.web.Router;
 import io.vertx.reactivex.ext.web.handler.BodyHandler;
 import io.vertx.reactivex.ext.web.handler.StaticHandler;
 import io.vertx.reactivex.ext.web.handler.sockjs.SockJSHandler;
-import org.flabs.repository.RatesRepository;
 
 public class WebVerticle extends AbstractVerticle {
 
@@ -18,27 +17,25 @@ public class WebVerticle extends AbstractVerticle {
     private HttpServer server;
 
     private void setServer(HttpServer server) {
-        System.out.println("-------------");
         this.server = server;
     }
 
     private io.vertx.reactivex.ext.web.Router getApiRouter() {
-        final Router apiRouter = Router.router(vertx);
+        var apiRouter = Router.router(vertx);
         apiRouter.route().handler(BodyHandler.create());
         apiRouter.route().consumes("application/json");
         apiRouter.route().produces("application/json");
-        apiRouter.route("/fxrates").handler(new FxRatesRestHandler(new RatesRepository()));
         return apiRouter;
     }
 
 
     @Override
     public Completable rxStart() {
-        final int httpPort = config().containsKey("http.port") ? config().getInteger("http.port") : DEFAULT_PORT;
-        final Router router = Router.router(vertx);
-        final SockJSHandlerOptions sjsOptions = new SockJSHandlerOptions().setHeartbeatInterval(2000);
-        final SockJSHandler sockJSHandler = SockJSHandler.create(vertx, sjsOptions);
-        final BridgeOptions options = new BridgeOptions()
+        var httpPort = config().containsKey("http.port") ? config().getInteger("http.port") : DEFAULT_PORT;
+        var router = Router.router(vertx);
+        var sjsOptions = new SockJSHandlerOptions().setHeartbeatInterval(2000);
+        var sockJSHandler = SockJSHandler.create(vertx, sjsOptions);
+        var options = new BridgeOptions()
                 .addInboundPermitted(new PermittedOptions().setAddressRegex("tick-address.*"))
                 .addOutboundPermitted(new PermittedOptions().setAddressRegex("tick-address.*"));
         sockJSHandler.bridge(options);
@@ -49,7 +46,7 @@ public class WebVerticle extends AbstractVerticle {
                         .setCachingEnabled(false)
                         .setIndexPage("index.html"))
         ;
-        router.mountSubRouter("/api/v1", getApiRouter());
+        //router.mountSubRouter("/api/v1", getApiRouter());
         router.route("/tick/*")
                 .handler(sockJSHandler);
 

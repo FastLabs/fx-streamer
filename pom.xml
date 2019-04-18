@@ -83,6 +83,11 @@
             <artifactId>vertx-rx-java2-gen</artifactId>
             <version>${vertx.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.flabs.service</groupId>
+            <artifactId>ref-data-service</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!--   <dependency>
                <groupId>io.vertx</groupId>
                <artifactId>vertx-web</artifactId>

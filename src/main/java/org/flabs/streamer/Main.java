@@ -64,6 +64,14 @@ public class Main extends MicroApp {
         return vertx.rxDeployVerticle("service:org.flabs.service.example.Consumer", new DeploymentOptions().setHa(true)).toObservable();
     }
 
+    Observable<String> deployReferenceDataService(Vertx vertx) {
+        return vertx.rxDeployVerticle("service:org.flabs.service.ReferenceDataService", new DeploymentOptions().setHa(true)).toObservable();
+    }
+
+    Observable<String> deployReferenceDataConsumer(Vertx vertx) {
+        return vertx.rxDeployVerticle("service:org.flabs.service.example.RefDataConsumer", new DeploymentOptions().setHa(false)).toObservable();
+    }
+
     @Override
     protected List<Function<Vertx, Observable<String>>> getModuleFactories() {
         final List<Function<Vertx, Observable<String>>> moduleFactories = new ArrayList<>();
@@ -77,6 +85,12 @@ public class Main extends MicroApp {
             case "consumer":
                 moduleFactories.add(this::deployConsumer);
                 moduleFactories.add(this::deployClusterMembersService);
+                break;
+            case "ref-data-service":
+                moduleFactories.add(this::deployReferenceDataService);
+                break;
+            case "ref-data-consumer":
+                moduleFactories.add(this::deployReferenceDataConsumer);
                 break;
             default:
                 System.out.print("Unknown profile selected");

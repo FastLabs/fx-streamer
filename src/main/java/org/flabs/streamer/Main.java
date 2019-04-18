@@ -47,7 +47,7 @@ public class Main extends MicroApp {
     }
 
     Observable<String> deployTestStreaming(Vertx vertx) {
-        return vertx.rxDeployVerticle("org.flabs.streamer.StreamingVerticle",
+        return vertx.rxDeployVerticle("org.flabs.service.example.StreamingVerticle",
                 new DeploymentOptions()
                         .setHa(true)).toObservable();
     }

@@ -1,4 +1,4 @@
-package org.flabs.streamer;
+package org.flabs.service.example;
 
 
 import io.vertx.core.AbstractVerticle;
@@ -6,7 +6,6 @@ import io.vertx.core.Future;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 
-@Deprecated
 public class StreamingVerticle extends AbstractVerticle {
 
 
